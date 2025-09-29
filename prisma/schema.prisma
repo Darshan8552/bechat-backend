@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(uuid())
+  name             String
+  username         String            @unique
+  email            String            @unique
+  password         String
+  isVerified       Boolean           @default(false)
+  isProfilePrivate Boolean           @default(false)
+  role             Role              @default(USER)
+  location         String?
+  website          String?
+  bio              String?
+  avatarUrl        String            @default("abcUrl")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  refreshTokens    RefreshToken[]
+  otps             OneTimePassword[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String
+  expiresAt    DateTime @default(dbgenerated("NOW() + INTERVAL '7 days'"))
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@map("refreshTokens")
+}
+
+model OneTimePassword {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  otp       String   @unique
+  expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '10 minutes'"))
+  attempts  Int      @default(0)
+  type      OtpType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("otps")
+}
+
+enum OtpType {
+  EMAIL_VERIFICATION
+  RESET_PASSWORD
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
