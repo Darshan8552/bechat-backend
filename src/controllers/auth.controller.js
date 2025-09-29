@@ -6,6 +6,8 @@ import {
 } from "../services/auth.service.js";
 import { SignUpSchema } from "../validations/auth.validation.js";
 import { sendEmail } from "../services/email.service.js";
+import { Prisma } from "@prisma/client";
+const { PrismaClientKnownRequestError } = Prisma;
 
 export const checkUsername = async (req, res) => {
   try {
@@ -27,12 +29,10 @@ export const signUp = async (req, res) => {
     const body = await req.body;
     const validationResult = SignUpSchema.safeParse(body);
     if (!validationResult.success) {
-      return res
-        .status(400)
-        .json({
-          message: "Invalid input data",
-          errors: validationResult.error.issues,
-        });
+      return res.status(400).json({
+        message: "Invalid input data",
+        errors: validationResult.error.issues,
+      });
     }
     const { email, name, password, username } = validationResult.data;
 
@@ -66,11 +66,9 @@ export const signUp = async (req, res) => {
           where: { username },
         });
         if (existingUserByUsername) {
-          return res
-            .status(409)
-            .json({
-              message: "Username already exists! Please choose a different one",
-            });
+          return res.status(409).json({
+            message: "Username already exists! Please choose a different one",
+          });
         }
         await prisma.user.update({
           where: { id: existingUserByEmail.id },
@@ -93,12 +91,10 @@ export const signUp = async (req, res) => {
         });
       });
       await sendEmail(email, "EMAIL_VERIFICATION", otp);
-      return res
-        .status(200)
-        .json({
-          message: "Verification email resent successfully",
-          user: { ...existingUserByEmail, ...updates, username },
-        });
+      return res.status(200).json({
+        message: "Verification email resent successfully",
+        user: { ...existingUserByEmail, ...updates, username },
+      });
     }
 
     const existingUserByUsername = await prisma.user.findUnique({
@@ -145,12 +141,10 @@ export const verifyOtp = async (req, res) => {
     const body = await req.body;
     const validationResult = VerifyOtpSchema.safeParse(body);
     if (!validationResult.success) {
-      return res
-        .status(400)
-        .json({
-          message: "Invalid input data",
-          errors: validationResult.error.issues,
-        });
+      return res.status(400).json({
+        message: "Invalid input data",
+        errors: validationResult.error.issues,
+      });
     }
     const { email, otp } = validationResult.data;
 
@@ -175,11 +169,9 @@ export const verifyOtp = async (req, res) => {
         .json({ message: "Valid OTP not found or expired" });
     }
     if (otpRecord.attempts >= 5) {
-      return res
-        .status(429)
-        .json({
-          message: "Too many failed attempts. Please request a new OTP.",
-        });
+      return res.status(429).json({
+        message: "Too many failed attempts. Please request a new OTP.",
+      });
     }
 
     const isOtpValid = await comparePassword(otp, otpRecord.otp);
@@ -246,12 +238,10 @@ export const resendVerificationOtp = async (req, res) => {
     const body = await req.body;
     const validationResult = ResendOtpSchema.safeParse(body);
     if (!validationResult.success) {
-      return res
-        .status(400)
-        .json({
-          message: "Invalid input data",
-          errors: validationResult.error.issues,
-        });
+      return res.status(400).json({
+        message: "Invalid input data",
+        errors: validationResult.error.issues,
+      });
     }
     const { email } = validationResult.data;
 
