@@ -6,8 +6,7 @@ import {
 } from "../services/auth.service.js";
 import { SignUpSchema } from "../validations/auth.validation.js";
 import { sendEmail } from "../services/email.service.js";
-import { Prisma } from "@prisma/client";
-const { PrismaClientKnownRequestError } = Prisma;
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
 
 export const checkUsername = async (req, res) => {
   try {

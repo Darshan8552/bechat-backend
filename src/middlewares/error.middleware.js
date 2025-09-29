@@ -1,6 +1,5 @@
 import { ZodError } from "zod";
-import { Prisma } from "@prisma/client";
-const { PrismaClientKnownRequestError } = Prisma;
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
 
 export const errorHandler = (error, req, res, next) => {
     console.error("Error:", error)
