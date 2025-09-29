@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import { configDotenv } from "dotenv";
 import cookieParser from "cookie-parser";
+import { errorHandler } from "./src/middlewares/error.middleware.js";
+import { requestLogger } from "./src/middlewares/logger.middleware.js";
+import authRoutes from "./src/routes/auth.route.js";
 configDotenv();
 
 const app = express();
@@ -25,14 +28,15 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
+app.use(requestLogger);
 
 app.get("/", (req, res) => {
   res.json({ status: "Server is running" });
 });
 
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
-// app.use(errorHandler);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log("Server running successfully");

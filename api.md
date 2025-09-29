@@ -1,10 +1,16 @@
 <!-- AUTH API's -->
 
 /api/auth
-    /signup  {name, username, email, password}
+    /api/auth/signup 
+    => {name, username, email, password}
 
-    /check-username?username=value
+    /api/auth/check-username?username=value
 
-    /verify-email {email, otp}
+    /api/auth/verify-email 
+    => {email, otp}
 
-    /login {email or username, password}
+    /api/auth/login 
+    => {email or username, password}
+
+    /api/auth/resend-email 
+    => {email}
